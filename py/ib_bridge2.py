@@ -6,7 +6,7 @@ import urllib3
 import configparser
 from ib_insync import IB, Future, LimitOrder, StopOrder
 
-# Disable SSL warnings (via-trader.com does not have https setup yet)
+# Disable SSL warnings (only for testing purposes)
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 MAX_ORDERS = 15
