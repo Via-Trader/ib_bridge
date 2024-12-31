@@ -1,9 +1,7 @@
 import csv
-import os
-import schedule
-import time
-from datetime import datetime
 from ib_insync import IB
+from datetime import datetime
+import os
 
 
 def calculate_daily_pnl(ib, trades_file='trades.csv', total_pnl_file='total_pnl.csv'):
@@ -24,7 +22,7 @@ def calculate_daily_pnl(ib, trades_file='trades.csv', total_pnl_file='total_pnl.
     print("Executions fetched:")
 
     if not executions:  # Check if executions list is empty
-        print("No trades executed today.")
+        print("No executions found for today.")
         return 0.0, 0.0, 0.0
 
     # Group trades by contract and side (entry/exit)
@@ -136,10 +134,7 @@ def calculate_daily_pnl(ib, trades_file='trades.csv', total_pnl_file='total_pnl.
     return realized_pnl, unrealized_pnl, total_pnl
 
 
-def job():
-    """
-    Job to be executed every 5 minutes.
-    """
+if __name__ == "__main__":
     ib = IB()
     try:
         # Connect to IB Gateway or TWS
@@ -153,19 +148,14 @@ def job():
         os.makedirs(os.path.dirname(trades_file), exist_ok=True)
 
         # Calculate P&L and append to CSV files
-        calculate_daily_pnl(ib, trades_file=trades_file, total_pnl_file=total_pnl_file)
+        realized_pnl, unrealized_pnl, total_pnl = calculate_daily_pnl(ib, trades_file=trades_file, total_pnl_file=total_pnl_file)
+
+        # Print results
+        print(f"\nRealized P&L: ${realized_pnl:.2f}")
+        print(f"Unrealized P&L: ${unrealized_pnl:.2f}")
+        print(f"Total P&L: ${total_pnl:.2f}")
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
         # Disconnect from IB
         ib.disconnect()
-
-
-if __name__ == "__main__":
-    # Schedule the job every 5 minutes
-    schedule.every(5).minutes.do(job)
-
-    print("Scheduler started. Running the job every 5 minutes.")
-    while True:
-        # schedule.run
-        schedule.run_pending()
